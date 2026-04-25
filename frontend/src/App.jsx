@@ -8,7 +8,7 @@ import { Dashboard } from './pages/Dashboard';
 import './App.css';
 
 function ProtectedRoute({ children }) {
-  const stored = localStorage.getItem('user');
+  const stored = localStorage.getItem('auth');
   return stored ? children : <Navigate to="/login" />;
 }
 
