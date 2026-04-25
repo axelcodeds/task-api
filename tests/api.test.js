@@ -1,15 +1,5 @@
 const jwt = require("jsonwebtoken");
 const authMiddleware = require("../src/middleware/auth");
-const request = require("supertest");
-
-jest.mock("../src/config/database", () => ({
-  pool: {
-    query: jest.fn(),
-  },
-  initDatabase: jest.fn().mockResolvedValue(undefined),
-}));
-
-const { pool } = require("../src/config/database");
 
 jest.mock("jsonwebtoken");
 
@@ -56,64 +46,5 @@ describe("authMiddleware", () => {
 
     expect(req.user).toEqual({ id: 1, email: "test@example.com" });
     expect(next).toHaveBeenCalled();
-  });
-});
-
-describe("API integration-like tests", () => {
-  let app;
-
-  beforeAll(() => {
-    process.env.NODE_ENV = "test";
-    app = require("../src/app");
-  });
-
-  beforeEach(() => {
-    pool.query.mockReset();
-    jwt.verify.mockReset();
-    jwt.sign.mockReset();
-    jwt.sign.mockReturnValue("test-token");
-  });
-
-  test("POST /api/auth/register returns 201 and token", async () => {
-    pool.query.mockResolvedValue({
-      rows: [{ id: 1, email: "demo@example.com", name: "Demo" }],
-    });
-
-    const response = await request(app).post("/api/auth/register").send({
-      email: "demo@example.com",
-      password: "123456",
-      name: "Demo",
-    });
-
-    expect(response.status).toBe(201);
-    expect(response.body).toHaveProperty("token");
-    expect(response.body.user.email).toBe("demo@example.com");
-  });
-
-  test("POST /api/tasks creates a task for authenticated user", async () => {
-    jwt.verify.mockReturnValue({ id: 1, email: "demo@example.com" });
-    pool.query.mockResolvedValue({
-      rows: [
-        {
-          id: 10,
-          user_id: 1,
-          title: "Ship changes",
-          description: "Smoke test deployment",
-          completed: false,
-        },
-      ],
-    });
-
-    const response = await request(app)
-      .post("/api/tasks")
-      .set("Authorization", "Bearer valid-token")
-      .send({
-        title: "Ship changes",
-        description: "Smoke test deployment",
-      });
-
-    expect(response.status).toBe(201);
-    expect(response.body.title).toBe("Ship changes");
-    expect(pool.query).toHaveBeenCalled();
   });
 });

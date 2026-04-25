@@ -1,13 +1,5 @@
 const { pool } = require("../config/database");
 
-function assertSelfAccess(req, res) {
-  if (String(req.user.id) !== String(req.params.id)) {
-    res.status(403).json({ error: "Forbidden" });
-    return false;
-  }
-  return true;
-}
-
 exports.getAll = async (req, res, next) => {
   try {
     const result = await pool.query(
@@ -21,10 +13,6 @@ exports.getAll = async (req, res, next) => {
 
 exports.getById = async (req, res, next) => {
   try {
-    if (!assertSelfAccess(req, res)) {
-      return;
-    }
-
     const { id } = req.params;
     const result = await pool.query(
       "SELECT id, email, name, created_at FROM users WHERE id = $1",
@@ -43,10 +31,6 @@ exports.getById = async (req, res, next) => {
 
 exports.update = async (req, res, next) => {
   try {
-    if (!assertSelfAccess(req, res)) {
-      return;
-    }
-
     const { id } = req.params;
     const { name, email } = req.body;
 
@@ -67,10 +51,6 @@ exports.update = async (req, res, next) => {
 
 exports.delete = async (req, res, next) => {
   try {
-    if (!assertSelfAccess(req, res)) {
-      return;
-    }
-
     const { id } = req.params;
 
     const result = await pool.query(

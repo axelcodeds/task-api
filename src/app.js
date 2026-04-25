@@ -1,7 +1,6 @@
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
-const rateLimit = require("express-rate-limit");
 const config = require("./config/env");
 const { initDatabase } = require("./config/database");
 
@@ -17,14 +16,6 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
-const authRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: "Too many auth requests, please try again later" },
-});
-
 // Logging middleware
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
@@ -32,7 +23,7 @@ app.use((req, res, next) => {
 });
 
 // Rutas
-app.use("/api/auth", authRateLimiter, authRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/tasks", taskRoutes);
 
@@ -65,8 +56,6 @@ async function start() {
   }
 }
 
-if (require.main === module) {
-  start();
-}
+start();
 
 module.exports = app;
