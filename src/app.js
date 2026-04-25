@@ -3,6 +3,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const config = require("./config/env");
 const { initDatabase } = require("./config/database");
+const { apiLimiter, authLimiter } = require("./middleware/rateLimiter");
 
 // Importar rutas
 const authRoutes = require("./routes/auth");
@@ -16,6 +17,9 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
+// Rate limiting
+app.use(apiLimiter);
+
 // Logging middleware
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
@@ -23,9 +27,9 @@ app.use((req, res, next) => {
 });
 
 // Rutas
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/tasks", taskRoutes);
+app.use("/api/auth", authLimiter, authRoutes);
+app.use("/api/users", apiLimiter, userRoutes);
+app.use("/api/tasks", apiLimiter, taskRoutes);
 
 // Health check
 app.get("/health", (req, res) => {

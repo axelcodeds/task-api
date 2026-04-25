@@ -40,7 +40,7 @@ exports.register = async (req, res, next) => {
     );
 
     res.status(201).json({
-      user,
+      user: { id: user.id, email: user.email, name: user.name },
       token,
     });
   } catch (err) {
