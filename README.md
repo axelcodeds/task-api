@@ -71,10 +71,11 @@ curl http://localhost:3000/health
 
 ### Users
 
-- `GET /api/users` - Get all users
 - `GET /api/users/:id` - Get user by ID
 - `PUT /api/users/:id` - Update user
 - `DELETE /api/users/:id` - Delete user
+
+Note: user endpoints are self-only. The authenticated user can only access their own user id.
 
 ### Tasks
 
